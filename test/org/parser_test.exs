@@ -31,16 +31,14 @@ defmodule OrgParserTest do
 
     doc = Org.Parser.parse(heading_with_text)
 
-    assert doc ==
-      [
-        %Org.Parser.Heading{
-          contents: "A heading",
-          children: [
-            %Org.Parser.Text{contents: "Some text"},
-            %Org.Parser.Text{contents: "More text"}
-          ]
-        }
-      ]
+    assert doc == [
+      %Org.Parser.Heading{
+        contents: "A heading",
+        children: [
+          %Org.Parser.Text{contents: "Some text\nMore text"},
+        ]
+      }
+    ]
   end
 
   test "parsing two headings" do
@@ -48,25 +46,27 @@ defmodule OrgParserTest do
 
     doc = Org.Parser.parse(two_headings)
 
-    assert doc ==
-      [
-        %Org.Parser.Heading{contents: "A heading"},
-        %Org.Parser.Heading{contents: "A second heading"}
-      ]
+    assert doc == [
+      %Org.Parser.Heading{contents: "A heading"},
+      %Org.Parser.Heading{contents: "A second heading"}
+    ]
   end
 
-  # test "parsing a subheading" do
-  #   heading_and_subheading = "* A heading\n** A subheading\n"
-  #
-  #   doc = Org.Parser.parse(heading_and_subheading)
-  #
-  #   assert doc ==
-  #     {
-  #       {:heading, "A heading",
-  #         [
-  #           {:heading, "A subheading", []}
-  #         ]
-  #       }
-  #     }
-  # end
+  test "parsing a subheading" do
+    heading_and_subheading = "* A heading\n** A subheading\n"
+
+    doc = Org.Parser.parse(heading_and_subheading)
+
+    assert doc == [
+      %Org.Parser.Heading{
+        contents: "A heading",
+        children: [
+          %Org.Parser.Heading{
+            contents: "A subheading",
+            level: 2
+          }
+        ]
+      }
+    ]
+  end
 end
