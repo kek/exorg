@@ -1,14 +1,34 @@
 defmodule Org.Parser do
-  defmodule Text, do: defstruct contents: ""
-  defmodule Heading, do: defstruct contents: "", children: [], level: 1
+  @moduledoc "Transforms an org file into a tree structure"
 
   defprotocol Section do
     def join(this, other)
   end
 
+  defmodule Text, do: defstruct contents: ""
+
+  defmodule Heading, do: defstruct contents: "", children: [], level: nil
+
   defimpl Section, for: Text do
-    def join(this, other) do
-      %Text{contents: Enum.join([other.contents, this.contents], "\n")}
+    def join(this, previous = %Text{}) do
+      [%Text{contents: Enum.join([this.contents, previous.contents], "\n")}]
+    end
+    def join(this, previous) do
+      [this, previous]
+    end
+  end
+
+  defimpl Section, for: Heading do
+    def join(this, previous = %Text{}) do
+      [%{this | children: [previous | this.children]}]
+    end
+    def join(this = %Heading{level: this_level},
+             previous = %Heading{level: previous_level})
+             when this_level < previous_level do
+      [%{this | children: this.children ++ [previous]}]
+    end
+    def join(this, previous) do
+      [this, previous]
     end
   end
 
@@ -25,18 +45,6 @@ defmodule Org.Parser do
   defp parse_line("** " <> contents), do: %Heading{contents: contents, level: 2}
   defp parse_line(contents), do: %Text{contents: contents}
 
-  defp collapse(this = %Text{}, [previous = %Text{}|rest]) do
-    [Section.join(previous, this) | rest]
-  end
-  defp collapse(%Heading{contents: heading_contents, children: children}, [previous = %Text{} | rest]) do
-    heading = %Heading{contents: heading_contents, children: [previous | children]}
-    [heading | rest]
-  end
-  defp collapse(this = %Heading{level: this_level}, [previous = %Heading{level: previous_level} | rest]) when this_level < previous_level do
-    heading = %{this | children: this.children ++ [previous]}
-    [heading | rest]
-  end
-  defp collapse(x, acc) do
-    [x | acc]
-  end
+  defp collapse(this, [previous | rest]), do: Section.join(this, previous) ++ rest
+  defp collapse(this, []), do: [this]
 end
