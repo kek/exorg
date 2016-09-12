@@ -14,8 +14,11 @@ defmodule Org.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger] ++ applications(Mix.env)]
   end
+
+  def applications(:dev), do: [:remix]
+  def applications(_), do: []
 
   # Dependencies can be Hex packages:
   #
@@ -27,6 +30,6 @@ defmodule Org.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:remix, git: "https://github.com/kek/remix", only: :dev}]
   end
 end
