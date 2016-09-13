@@ -29,4 +29,17 @@ defmodule Org.Tree do
       [first, second]
     end
   end
+
+  defimpl String.Chars, for: Heading do
+    def to_string(heading) do
+      stars = Enum.join(for _ <- 1..heading.level, do: "*")
+      this = "#{stars} #{heading.contents}\n"
+      rendered_children = Org.Renderer.Org.render(heading.children)
+      Enum.join([this, rendered_children])
+    end
+  end
+
+  defimpl String.Chars, for: Text do
+    def to_string(text), do: "#{text.contents}\n"
+  end
 end
