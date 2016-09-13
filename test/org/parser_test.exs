@@ -7,7 +7,7 @@ defmodule OrgParserTest do
 
     doc = Org.Parser.parse(just_text)
 
-    assert doc == [%Org.Parser.Text{contents: "Some text"}]
+    assert doc == [%Org.Tree.Text{contents: "Some text"}]
   end
 
   test "parsing a heading" do
@@ -16,7 +16,7 @@ defmodule OrgParserTest do
 
     doc = Org.Parser.parse(a_heading)
 
-    assert doc == [%Org.Parser.Heading{contents: "A heading", level: 20}]
+    assert doc == [%Org.Tree.Heading{contents: "A heading", level: 20}]
   end
 
   test "parsing more text" do
@@ -24,7 +24,7 @@ defmodule OrgParserTest do
 
     doc = Org.Parser.parse(two_lines_of_text)
 
-    assert doc == [%Org.Parser.Text{contents: "Some text\nMore text"}]
+    assert doc == [%Org.Tree.Text{contents: "Some text\nMore text"}]
   end
 
   test "parsing a heading with text" do
@@ -33,11 +33,11 @@ defmodule OrgParserTest do
     doc = Org.Parser.parse(heading_with_text)
 
     assert doc == [
-      %Org.Parser.Heading{
+      %Org.Tree.Heading{
         contents: "A heading",
         level: 1,
         children: [
-          %Org.Parser.Text{contents: "Some text\nMore text"},
+          %Org.Tree.Text{contents: "Some text\nMore text"},
         ]
       }
     ]
@@ -49,8 +49,8 @@ defmodule OrgParserTest do
     doc = Org.Parser.parse(two_headings)
 
     assert doc == [
-      %Org.Parser.Heading{contents: "A heading", level: 1},
-      %Org.Parser.Heading{contents: "A second heading", level: 1}
+      %Org.Tree.Heading{contents: "A heading", level: 1},
+      %Org.Tree.Heading{contents: "A second heading", level: 1}
     ]
   end
 
@@ -60,11 +60,11 @@ defmodule OrgParserTest do
     doc = Org.Parser.parse(heading_and_subheading)
 
     assert doc == [
-      %Org.Parser.Heading{
+      %Org.Tree.Heading{
         contents: "A heading",
         level: 1,
         children: [
-          %Org.Parser.Heading{
+          %Org.Tree.Heading{
             contents: "A subheading",
             level: 2
           }

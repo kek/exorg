@@ -1,37 +1,6 @@
 defmodule Org.Parser do
   @moduledoc "Transforms an org file into a tree structure"
 
-  defprotocol Section do
-    def join(this, other)
-  end
-
-  defmodule Text, do: defstruct contents: ""
-
-  defmodule Heading, do: defstruct contents: "", children: [], level: nil
-
-  defimpl Section, for: Text do
-    def join(this, previous = %Text{}) do
-      [%Text{contents: Enum.join([this.contents, previous.contents], "\n")}]
-    end
-    def join(this, previous) do
-      [this, previous]
-    end
-  end
-
-  defimpl Section, for: Heading do
-    def join(this, previous = %Text{}) do
-      [%{this | children: [previous | this.children]}]
-    end
-    def join(this = %Heading{level: this_level},
-             previous = %Heading{level: previous_level})
-             when this_level < previous_level do
-      [%{this | children: this.children ++ [previous]}]
-    end
-    def join(this, previous) do
-      [this, previous]
-    end
-  end
-
   def parse(text) do
     text
     |> String.trim_trailing
@@ -43,11 +12,11 @@ defmodule Org.Parser do
 
   defp parse_line(line) do
     case Regex.run(~r/(\*+) (.*)/, line) do
-      nil -> %Text{contents: line}
-      [^line, stars, text] -> %Heading{contents: text, level: String.length(stars)}
+      nil -> %Org.Tree.Text{contents: line}
+      [^line, stars, text] -> %Org.Tree.Heading{contents: text, level: String.length(stars)}
     end
   end
 
-  defp collapse(this, [previous | rest]), do: Section.join(this, previous) ++ rest
+  defp collapse(this, [previous | rest]), do: Org.Tree.Section.join(this, previous) ++ rest
   defp collapse(this, []), do: [this]
 end
