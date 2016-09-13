@@ -41,9 +41,12 @@ defmodule Org.Parser do
     |> Enum.reduce([], &collapse/2)
   end
 
-  defp parse_line("* " <> contents), do: %Heading{contents: contents, level: 1}
-  defp parse_line("** " <> contents), do: %Heading{contents: contents, level: 2}
-  defp parse_line(contents), do: %Text{contents: contents}
+  defp parse_line(line) do
+    case Regex.run(~r/(\*+) (.*)/, line) do
+      nil -> %Text{contents: line}
+      [^line, stars, text] -> %Heading{contents: text, level: String.length(stars)}
+    end
+  end
 
   defp collapse(this, [previous | rest]), do: Section.join(this, previous) ++ rest
   defp collapse(this, []), do: [this]

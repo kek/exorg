@@ -11,11 +11,12 @@ defmodule OrgParserTest do
   end
 
   test "parsing a heading" do
-    a_heading = "* A heading\n"
+    twenty_stars = Enum.join(for _ <- 1..20, do: "*")
+    a_heading = "#{twenty_stars} A heading\n"
 
     doc = Org.Parser.parse(a_heading)
 
-    assert doc == [%Org.Parser.Heading{contents: "A heading", level: 1}]
+    assert doc == [%Org.Parser.Heading{contents: "A heading", level: 20}]
   end
 
   test "parsing more text" do
