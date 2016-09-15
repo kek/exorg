@@ -30,6 +30,7 @@ defmodule Org.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:remix, git: "https://github.com/kek/remix", only: :dev}]
+    [{:remix, git: "https://github.com/kek/remix", only: :dev},
+     {:floki, "~> 0.10.1", only: [:dev, :test]}]
   end
 end

@@ -33,4 +33,24 @@ defmodule OrgRendererTest do
         "* A heading\n* Another heading\n"
     end
   end
+
+  describe "Rendering HTML format" do
+    doc =
+      [%Org.Tree.Heading{contents: "A heading", level: 1, children:
+                         [
+                           %Org.Tree.Text{contents: "Some text"},
+                           %Org.Tree.Text{contents: "More text"}
+                         ]},
+       %Org.Tree.Heading{contents: "Another heading", level: 1}]
+
+    html = Org.Renderer.HTML.render(doc)
+
+    assert Floki.parse(html) ==
+      [
+        {"h1", [], ["A heading"]},
+        {"p", [], ["Some text"]},
+        {"p", [], ["More text"]},
+        {"h1", [], ["Another heading"]}
+      ]
+  end
 end
